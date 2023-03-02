@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script> 
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #data tr {
+        display: none;
+      }
+
+    </style>
+    
+</head>
+<body>
+
+    
+    <input type="text" id="myInput" onkeyup="csvTable()" placeholder="Search for names.." title="Type in a name"><br>
+
+    <input type="file" accept=".csv" id="picker">
+
+    <table id="table" data-current-page="1">
+
+    </table>
+    
+    <button type="button" id="pagibtn" onclick="pagination1()">Click this</button>
+
+    <!-- <nav class="pagination-container">
+        <button class="pagination-button" id="prev-button" aria-label="Previous page" title="Previous page">
+          &lt;
+        </button>
+    
+        <div id="pagination-numbers">
+    
+        </div>
+    
+        <button class="pagination-button" id="next-button" aria-label="Next page" title="Next page">
+          &gt;
+        </button>
+      </nav> -->
+      
+    
+
+    <Script>
+    
+       
+    window.onload = () => {
+      var reader = new FileReader(),
+        picker = document.getElementById("picker"),
+        table = document.getElementById("table");
+
+      picker.onchange = () => reader.readAsText(picker.files[0]);
+
+
+      reader.onloadend = () => {
+        var csv = reader.result;
+
+        table.innerHTML = "";
+
+        var rows = csv.split("\r\n");
+        for (var row of rows) {
+          var cols = row.match(/(?:\"([^\"]*(?:\"\"[^\"]*)*)\")|([^\",]+)/g);
+          // console.log(cols);
+          if (cols != null) {
+            var tr = table.insertRow();
+            for (var col of cols) {
+              var td = tr.insertCell();
+              td.innerHTML = col.replace(/(^"|"$)/g, "");
+            }
+          }
+        }
+
+
+      };
+    };
+
+
+    function csvTable() {
+        c=1;
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("myInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("table");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+
+          }
+        }
+      }
+   
+    }
+function pagination1(){
+
+    $(document).ready(function(){
+    $('#table').after('<div id="nav"></div>');
+    var rowsShown = 10;
+    var rowsTotal = $('#table tbody tr').length;
+    var numPages = rowsTotal/rowsShown;
+    for(i = 0;i < numPages;i++) {
+        var pageNum = i + 1;
+        $('#nav').append('<a href="#" rel="'+i+'">'+pageNum+'</a> ');
+    }
+    $('#table tbody tr').hide();
+    $('#table tbody tr').slice(0, rowsShown).show();
+    $('#nav a:first').addClass('active');
+    $('#nav a').bind('click', function(){
+
+        $('#nav a').removeClass('active');
+        $(this).addClass('active');
+        var currPage = $(this).attr('rel');
+        var startItem = currPage * rowsShown;
+        var endItem = startItem + rowsShown;
+        $('#table tbody tr').css('opacity','0.0').hide().slice(startItem, endItem).
+        css('display','table-row').animate({opacity:1}, 300);
+    });
+});
+
+
+
+
+
+// const paginationNumbers = document.getElementById("pagination-numbers");
+// const paginatedList = document.getElementById("table");
+// const listItems = paginatedList.querySelectorAll("tr");
+// const nextButton = document.getElementById("next-button");
+// const prevButton = document.getElementById("prev-button");
+
+// const paginationLimit = 10;
+// const pageCount = Math.ceil(listItems.length / paginationLimit);
+// let currentPage = 1;
+
+// const disableButton = (button) => {
+//   button.classList.add("disabled");
+//   button.setAttribute("disabled", true);
+// };
+
+// const enableButton = (button) => {
+//   button.classList.remove("disabled");
+//   button.removeAttribute("disabled");
+// };
+
+// const handlePageButtonsStatus = () => {
+//   if (currentPage === 1) {
+//     disableButton(prevButton);
+//   } else {
+//     enableButton(prevButton);
+//   }
+
+//   if (pageCount === currentPage) {
+//     disableButton(nextButton);
+//   } else {
+//     enableButton(nextButton);
+//   }
+// };
+
+// const handleActivePageNumber = () => {
+//   document.querySelectorAll(".pagination-number").forEach((button) => {
+//     button.classList.remove("active");
+//     const pageIndex = Number(button.getAttribute("page-index"));
+//     if (pageIndex == currentPage) {
+//       button.classList.add("active");
+//     }
+//   });
+// };
+
+// const appendPageNumber = (index) => {
+//   const pageNumber = document.createElement("button");
+//   pageNumber.className = "pagination-number";
+//   pageNumber.innerHTML = index;
+//   pageNumber.setAttribute("page-index", index);
+//   pageNumber.setAttribute("aria-label", "Page " + index);
+
+//   paginationNumbers.appendChild(pageNumber);
+// };
+
+// const getPaginationNumbers = () => {
+//   for (let i = 1; i <= pageCount; i++) {
+//     appendPageNumber(i);
+//   }
+// };
+
+// const setCurrentPage = (pageNum) => {
+//   currentPage = pageNum;
+
+//   handleActivePageNumber();
+//   handlePageButtonsStatus();
+  
+//   const prevRange = (pageNum - 1) * paginationLimit;
+//   const currRange = pageNum * paginationLimit;
+
+//   listItems.forEach((item, index) => {
+//     item.classList.add("hidden");
+//     if (index >= prevRange && index < currRange) {
+//       item.classList.remove("hidden");
+//     }
+//   });
+// };
+
+// window.addEventListener("load", () => {
+//   getPaginationNumbers();
+//   setCurrentPage(1);
+
+//   prevButton.addEventListener("click", () => {
+//     setCurrentPage(currentPage - 1);
+//   });
+
+//   nextButton.addEventListener("click", () => {
+//     setCurrentPage(currentPage + 1);
+//   });
+
+//   document.querySelectorAll(".pagination-number").forEach((button) => {
+//     const pageIndex = Number(button.getAttribute("page-index"));
+
+//     if (pageIndex) {
+//       button.addEventListener("click", () => {
+//         setCurrentPage(pageIndex);
+//       });
+//     }
+//   });
+// });
+
+
+}
+
+
+
+
+
+
+  </script>
+
+
+
+    
+</body>
+</html>
